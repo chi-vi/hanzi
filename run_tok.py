@@ -5,7 +5,6 @@ from typing import Set
 from trie_file import *
 from dictionary import *
 import onnxruntime as ort
-
 from transformers import AutoTokenizer
 from concurrent.futures import ThreadPoolExecutor
 from hanlp.transform.transformer_tokenizer import TransformerSequenceTokenizer
@@ -125,18 +124,16 @@ def process_sentence(sentence):
     return tokens
 
 
-vocab_file = "./model/vocabs.json"
+vocab_file = "./model/tok/vocabs.json"
 tokenizer_path = "./tokenizer"
-onnx_path = "./model/yolo-smol.onnx"
+onnx_path = "./model/yolo.onnx"
 
 toke = TransformerTaggingTokenizer()
 so = ort.SessionOptions()
-so.intra_op_num_threads=2
+so.intra_op_num_threads=1
 so.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
-session = ort.InferenceSession(onnx_path, providers=['CPUExecutionProvider'])
-# session = ort.InferenceSession(onnx_path, providers=['CUDAExecutionProvider'])
+session = ort.InferenceSession(onnx_path, providers=['CPUExecutionProvider']) # CUDAExecutionProvider
 session.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
-
 tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
 transform = TransformerSequenceTokenizer(tokenizer_path, 'token',
                                         ret_subtokens=True,
@@ -144,18 +141,12 @@ transform = TransformerSequenceTokenizer(tokenizer_path, 'token',
                                         ret_token_span=False,
                                         use_fast=True,)
 
-with open("sample.out") as file:
-  sentences = file.readlines()
+sentences = [
+  '第293章 佐助IF线（14）阴谋，计划',
+  '旅祸们在瀞灵廷大闹，搅的死神们不得安宁。',
+  '他们人数虽少，可惹出来的麻烦，却意外的让人恐慌。',
+  '两位队长被击败！',
+]
 
-import time
-start = time.time()
-
-# results = [process_sentence(sentence) for sentence in sentences]
-with ThreadPoolExecutor(max_workers=6) as executor:
-    results = list(executor.map(process_sentence, sentences))
-
-end = time.time()
-print(end - start)
-
-print(onnx_path)
-# print("hanlp_xom: ", results)
+results = [process_sentence(sentence) for sentence in sentences]
+print("hanlp_xom: ", results)
