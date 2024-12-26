@@ -3,7 +3,7 @@ import torch
 from typing import List
 from phrasetree.tree import Tree
 from transformers import AutoConfig, AutoModel, AutoTokenizer
-from model.con.con_model import CRFConstituencyModel, CRFConstituencyDecoder
+from model.con_model import CRFConstituencyModel, CRFConstituencyDecoder
 from hanlp.transform.transformer_tokenizer import TransformerSequenceTokenizer
 from hanlp.layers.embeddings.contextual_word_embedding import ContextualWordEmbeddingModule
 
@@ -75,10 +75,10 @@ def process_sentence(sentence):
                 for token, chart in zip(tokens, chart_preds)]
     return result
 
-vocab_file = "./model/con/vocabs-electra.json"   # vocab-ernie.json
-tokenizer_path = "./tokenizer"                   # ./ernie-tokenizer
-config_file = "./model/con/config-electra.json"  # config-ernie.json
-filename = "./model/con/model-electra.pt"        # model-ernie.pt
+vocab_file = "./config/con/vocabs-electra.json"
+config_file = "./config/con/config-electra.json"
+tokenizer_path = "./tokenizer/electra"
+filename = "./model/con-ctb9-electra-small.pt"
 
 config_trans = AutoConfig.from_pretrained(config_file)
 tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
