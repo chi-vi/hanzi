@@ -1,6 +1,6 @@
 import json
 import torch
-from model.dep.dep_model import BiaffineDependencyModel
+from model.dep_model import BiaffineDependencyModel
 from transformers import AutoConfig, AutoModel, AutoTokenizer
 from hanlp.transform.transformer_tokenizer import TransformerSequenceTokenizer
 
@@ -90,10 +90,10 @@ def process_sentence(sentence):
     return logits_preds, mask_out
 
 
-vocab_file = "./model/dep/vocabs-ctb.json" # vocab-udc.json
-tokenizer_path = "./tokenizer"
-config_file = "./model/dep/config.json"
-filename = "./model/dep/model.pt"
+vocab_file = "./config/dep/vocabs-sd.json" # vocab-udc.json
+tokenizer_path = "./tokenizer/electra"
+config_file = "./config/dep/config.json"
+filename = "./model/dep-ctb9-sd.pt"
 
 tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
 transform = TransformerSequenceTokenizer(tokenizer_path,

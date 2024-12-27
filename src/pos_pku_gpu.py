@@ -3,6 +3,7 @@ import numpy as np
 import time
 import torch
 import json
+
 from concurrent.futures import ThreadPoolExecutor
 from hanlp.transform.transformer_tokenizer import TransformerSequenceTokenizer
 
@@ -44,21 +45,16 @@ def process_sentence(sentence):
 
     return preds
 
-vocab_file = "./model/pos/vocabs-pku.json"  #vocabs-ctb.json
-tokenizer_path = "./tokenizer"
-onnx_path = "./model/yolo-pos-pku.onnx"     #yolo-pos-ctb.onnx
+vocab_file = "./config/pos/vocabs-pku.json"
+tokenizer_path = "./tokenizer/electra"
+onnx_path = "./model/pos-pku-electra-small.onnx"
 
 so = ort.SessionOptions()
 so.intra_op_num_threads=1
 so.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
-session = ort.InferenceSession(onnx_path, providers=['CPUExecutionProvider']) # CUDAExecutionProvider
+session = ort.InferenceSession(onnx_path, providers=['CUDAExecutionProvider']) # CUDAExecutionProvider
 session.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
-transform = TransformerSequenceTokenizer(tokenizer_path, 'token',
-                                        ret_token_span=True,
-                                        ret_subtokens=False,
-                                        ret_mask_and_type=False,
-                                        ret_subtokens_group=False,
-                                        ret_prefix_mask=False,)
+transform = TransformerSequenceTokenizer(tokenizer_path, 'token', ret_token_span=True, ret_subtokens=False, ret_mask_and_type=False, ret_subtokens_group=False, ret_prefix_mask=False,)
 
 
 sentence = ["阿婆主", "来到", "北京", "立方庭", "参观", "自然", "语义", "科技", "公司", "。"]

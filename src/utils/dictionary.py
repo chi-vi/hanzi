@@ -1,6 +1,6 @@
-from trie_file import *
 from abc import ABC, abstractmethod
-from configurable import *
+from utils.trie_file import *
+from utils.configurable import *
 from typing import List, Tuple, Union, Optional, Dict, Any, TextIO, Sequence, Iterable
 
 

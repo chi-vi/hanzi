@@ -73,32 +73,31 @@ class TransformerNamedEntityRecognizer():
             batch_ner.append(ner_per_sent)
         return batch_ner
 
-vocabs_path = "./model/ner/vocabs.json"
-tokenizer_path = "./tokenizer"
-onnx_path = "./model/ner/yolo-ner.onnx"
+vocabs_path = "./config/ner/vocabs.json"
+tokenizer_path = "./tokenizer/electra"
+model_path = "./model/ner-msra-electra-small.onnx"
 
-ner = TransformerNamedEntityRecognizer()
 so = ort.SessionOptions()
 so.intra_op_num_threads=1
 so.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
-session = ort.InferenceSession(onnx_path, so, providers=['CPUExecutionProvider']) # CUDAExecutionProvider
-tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
-transform = TransformerSequenceTokenizer(tokenizer_path, 'token',
-                                        ret_subtokens=False,
-                                        ret_subtokens_group=False,
-                                        ret_token_span=True,
-                                        use_fast=False)
+session = ort.InferenceSession(model_path, so, providers=['CUDAExecutionProvider']) #
+
+# tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
+
+transform = TransformerSequenceTokenizer(tokenizer_path, 'token', ret_subtokens=False, ret_subtokens_group=False, ret_token_span=True, use_fast=False)
+# transform = TransformerSequenceTokenizer(tokenizer_path, 'token', ret_token_span=True, ret_subtokens=False, ret_mask_and_type=False, ret_subtokens_group=False, ret_prefix_mask=False,)
+
+ner = TransformerNamedEntityRecognizer()
 
 def process_sentence(sentence):
     inputs = transform({'token': sentence})
-    lens = len(inputs['token'])
 
     token_token_span = inputs['token_token_span']
     max_len = max(len(span) for span in token_token_span)
     padded_spans = [span + [0] * (max_len - len(span)) for span in token_token_span]
     inputs['token_token_span'] = padded_spans
 
-    text = inputs['token']
+    lens = len(inputs['token_token_span'])
     input_ids = inputs['token_input_ids']
     lens = np.array([lens], dtype=np.int64)
     input_ids = np.array([input_ids], dtype=np.int64)
@@ -111,23 +110,8 @@ def process_sentence(sentence):
         input_names[2]: token_span  # token_span
     })
 
-    predictions = logits[:, 1:-1, :].argmax(-1)
-    # print(predictions)
-    preds = ner.decode_output(predictions, mask, inputs)
-    token_ids = inputs['token_input_ids'][1:-1]
-
-    result = []
-    print(preds)
-    for pred in preds:
-        tokens = []
-        for label, start, end in pred:
-            span_token_ids = token_ids[start:end]
-            decoded_tokens = tokenizer.decode(span_token_ids)
-            decoded_tokens = decoded_tokens.replace(' ', '')
-            tokens.append(f"{label}: {decoded_tokens}")
-        result.append(tokens)
-    return result
+    return ner.decode_output(logits.argmax(-1), mask, inputs)
 
 sentence = ["阿婆主", "来到", "北京", "立方庭", "参观", "自然", "语义", "科技", "公司", "。"]
 results = process_sentence(sentence)
-# print(results)
+print(results)
