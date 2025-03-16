@@ -1,0 +1,41 @@
+{
+  "rel": {
+    "idx_to_token": [
+      "HED",
+      "DE",
+      "VOB",
+      "ATT",
+      "PUN",
+      "IS",
+      "NUM",
+      "QUC",
+      "COO",
+      "APP",
+      "ADV",
+      "SBV",
+      "ISC",
+      "POB",
+      "DI",
+      "LAD",
+      "RAD",
+      "IC",
+      "PUS",
+      "MT",
+      "QUN",
+      "VV",
+      "CMP",
+      "ACT",
+      "DEI",
+      "COS",
+      "TPC",
+      "RADC",
+      "RED",
+      "IOB",
+      "QUCC",
+      "FOC"
+    ],
+    "pad_token": null,
+    "unk_token": "HED",
+    "mutable": false
+  }
+}
